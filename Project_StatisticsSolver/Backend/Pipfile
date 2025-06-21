@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 flask-cors = "*"
 flask = "*"
+pyreadstat = "*"
 
 [dev-packages]
 

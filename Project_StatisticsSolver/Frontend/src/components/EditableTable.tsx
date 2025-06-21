@@ -1,11 +1,22 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
+interface EditableTableRow {
+  grupo: string;
+  valor: string;
+}
+
+interface EditableTableProps {
+  data: EditableTableRow[];
+  setData: React.Dispatch<React.SetStateAction<EditableTableRow[]>>;
+}
 
 export const EditableTable: React.FC<EditableTableProps> = ({
   data,
   setData,
 }) => {
-  const handleChange = (i, key, value) => {
+  const handleChange = (
+    i: number,
+    key: keyof EditableTableRow,
+    value: string
+  ) => {
     const copy = [...data];
     copy[i][key] = value;
     setData(copy);
@@ -15,7 +26,7 @@ export const EditableTable: React.FC<EditableTableProps> = ({
     setData([...data, { grupo: "", valor: "" }]);
   };
 
-  const deleteRow = (i) => {
+  const deleteRow = (i: number) => {
     setData(data.filter((_, index) => index !== i));
   };
 
