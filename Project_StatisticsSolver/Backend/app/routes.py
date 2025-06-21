@@ -12,6 +12,6 @@ def converter_file():
     resultado = file_converter(file)
 
     if resultado["ok"]:
-        return jsonify(resultado["respuesta"]), 200
+        return jsonify(resultado["response"]), 200
     else:
         return jsonify({"error": resultado["error"]}), 500

@@ -1,13 +1,22 @@
 import { EditableTable } from "@components/EditableTable";
-import { FileUpload } from "@components/FileUpload";
+import { FileUpload, type ConverterFile } from "@components/FileUpload";
+import { useState } from "react";
 
 export const App = () => {
+  const [dataTable, setDataTable] = useState<ConverterFile | undefined>(
+    undefined
+  );
+
   return (
     <>
-      <FileUpload setData={(data) => console.log("Data updated:", data)} />
+      <FileUpload
+        setData={(data) => {
+          setDataTable(data);
+        }}
+      />
       <EditableTable
-        data={[{ grupo: "", valor: "" }]}
-        setData={(data) => console.log("Data updated:", data)}
+        columns={dataTable?.columns || []}
+        data={dataTable?.data || []}
       />
     </>
   );

@@ -1,9 +1,9 @@
 import axios from "axios";
 import type { ChangeEvent } from "react";
 
-interface ConverterFile {
+export interface ConverterFile {
   columns: string[];
-  data: Record<string, unknown>[];
+  data: (string | number | null)[][];
 }
 interface FileUploadProps {
   setData: (data: ConverterFile) => void;

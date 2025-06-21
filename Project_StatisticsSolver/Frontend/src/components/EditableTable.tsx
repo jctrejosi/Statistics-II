@@ -1,68 +1,71 @@
-interface EditableTableRow {
-  grupo: string;
-  valor: string;
-}
+import { useEffect, useState } from "react";
 
 interface EditableTableProps {
-  data: EditableTableRow[];
-  setData: React.Dispatch<React.SetStateAction<EditableTableRow[]>>;
+  columns: string[];
+  data: (string | number | null)[][];
 }
 
-export const EditableTable: React.FC<EditableTableProps> = ({
-  data,
-  setData,
-}) => {
-  const handleChange = (
-    i: number,
-    key: keyof EditableTableRow,
+export const EditableTable = ({ columns, data }: EditableTableProps) => {
+  const [tableData, setTableData] =
+    useState<(string | number | null)[][]>(data);
+
+  const handleCellChange = (
+    rowIndex: number,
+    colIndex: number,
     value: string
   ) => {
-    const copy = [...data];
-    copy[i][key] = value;
-    setData(copy);
+    const updated = [...tableData];
+    updated[rowIndex][colIndex] = value;
+    setTableData(updated);
   };
 
   const addRow = () => {
-    setData([...data, { grupo: "", valor: "" }]);
+    setTableData([...tableData, Array(columns.length).fill("")]);
   };
 
-  const deleteRow = (i: number) => {
-    setData(data.filter((_, index) => index !== i));
+  const addColumn = () => {
+    const updated = tableData.map((row) => [...row, ""]);
+    setTableData(updated);
   };
+
+  useEffect(() => {
+    setTableData(data);
+  }, [data]);
 
   return (
     <div>
-      <table>
+      <button onClick={addRow}>➕ Añadir fila</button>
+      <button onClick={addColumn}>➕ Añadir columna</button>
+
+      <table
+        border={1}
+        style={{ borderCollapse: "collapse", marginTop: "1rem" }}
+      >
         <thead>
           <tr>
-            <th>Grupo</th>
-            <th>Valor</th>
-            <th></th>
+            {columns.map((col, i) => (
+              <th key={i}>{col}</th>
+            ))}
           </tr>
         </thead>
         <tbody>
-          {data.map((row, i) => (
-            <tr key={i}>
-              <td>
-                <input
-                  value={row.grupo}
-                  onChange={(e) => handleChange(i, "grupo", e.target.value)}
-                />
-              </td>
-              <td>
-                <input
-                  value={row.valor}
-                  onChange={(e) => handleChange(i, "valor", e.target.value)}
-                />
-              </td>
-              <td>
-                <button onClick={() => deleteRow(i)}>Eliminar</button>
-              </td>
+          {tableData.map((row, rowIndex) => (
+            <tr key={rowIndex}>
+              {row.map((cell, colIndex) => (
+                <td key={colIndex}>
+                  <input
+                    value={cell ?? ""}
+                    onChange={(e) =>
+                      handleCellChange(rowIndex, colIndex, e.target.value)
+                    }
+                    style={{ width: "100px" }}
+                  />
+                </td>
+              ))}
             </tr>
           ))}
         </tbody>
       </table>
-      <button onClick={addRow}>Agregar fila</button>
     </div>
   );
 };

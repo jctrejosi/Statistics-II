@@ -20,12 +20,14 @@ def file_converter(file):
         else:
             raise ValueError(f"Tipo de archivo no soportado: {ext}")
 
-        data_json = df.to_dict(orient="records")
         columnas = list(df.columns)
+
+        # Convertir DataFrame a lista de listas
+        data_json = df[columnas].values.tolist()
 
         return {
             "ok": True,
-            "respuesta": {
+            "response": {
                 "columns": columnas,
                 "data": data_json
             }
