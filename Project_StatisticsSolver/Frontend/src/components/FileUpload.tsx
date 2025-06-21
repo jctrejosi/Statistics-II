@@ -1,9 +1,12 @@
-import Papa from "papaparse";
 import axios from "axios";
 import type { ChangeEvent } from "react";
 
+interface ConverterFile {
+  columns: string[];
+  data: Record<string, unknown>[];
+}
 interface FileUploadProps {
-  setData: (data: unknown[]) => void;
+  setData: (data: ConverterFile) => void;
 }
 
 export const FileUpload = ({ setData }: FileUploadProps) => {
@@ -11,47 +14,28 @@ export const FileUpload = ({ setData }: FileUploadProps) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const extension = file.name.split(".").pop()?.toLowerCase();
+    const formData = new FormData();
+    formData.append("file", file);
 
-    if (extension === "sav") {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      try {
-        const response = await axios.post("api/v1.0/converter_sav", formData, {
+    try {
+      const response = await axios.post<ConverterFile>(
+        "api/v1.0/converter_file",
+        formData,
+        {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        });
-
-        const datos = response.data;
-
-        if (datos) {
-          setData(datos);
-        } else {
-          alert("El backend no devolvió datos válidos.");
         }
-      } catch (error) {
-        console.error("Error en el envío del .sav:", error);
-        alert("Error procesando archivo .sav");
-      }
-    } else if (extension === "csv") {
-      Papa.parse(file, {
-        header: true,
-        skipEmptyLines: true,
-        dynamicTyping: true,
-        transformHeader: (header: string) => header.trim().toLowerCase(),
-        transform: (value: string) => value.trim(),
-        error: (error) => {
-          console.error("Error parsing CSV:", error);
-          alert("Error al procesar archivo CSV.");
-        },
-        complete: (results) => setData(results.data),
-      });
-    } else {
-      alert("Formato de archivo no soportado. Solo .csv o .sav");
+      );
+
+      setData(response.data);
+    } catch (error) {
+      console.error("Error procesando archivo:", error);
+      alert("Ocurrió un error al procesar el archivo.");
     }
   };
 
-  return <input type="file" accept=".csv,.sav" onChange={handleFile} />;
+  return (
+    <input type="file" accept=".csv,.sav,.xlsx,.xls" onChange={handleFile} />
+  );
 };
