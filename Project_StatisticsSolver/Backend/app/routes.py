@@ -9,9 +9,10 @@ def converter_file():
         return jsonify({"error": "No se recibió ningún archivo"}), 400
 
     file = request.files['file']
-    resultado = file_converter(file)
 
-    if resultado["ok"]:
-        return jsonify(resultado["response"]), 200
-    else:
-        return jsonify({"error": resultado["error"]}), 500
+    try:
+        resultado = file_converter(file)
+        return jsonify(resultado), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

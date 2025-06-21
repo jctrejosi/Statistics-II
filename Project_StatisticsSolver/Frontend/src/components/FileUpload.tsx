@@ -18,17 +18,16 @@ export const FileUpload = ({ setData }: FileUploadProps) => {
     formData.append("file", file);
 
     try {
-      const response = await axios.post<ConverterFile>(
-        "api/v1.0/converter_file",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await axios.post("api/v1.0/converter_file", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-      setData(response.data);
+      const parsedData =
+        typeof response.data === "string"
+          ? JSON.parse(response.data)
+          : response.data;
+
+      setData(parsedData);
     } catch (error) {
       console.error("Error procesando archivo:", error);
       alert("Ocurrió un error al procesar el archivo.");
