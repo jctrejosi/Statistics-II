@@ -8,6 +8,7 @@ flask-cors = "*"
 flask = "*"
 pyreadstat = "*"
 openpyxl = "*"
+scipy = "*"
 
 [dev-packages]
 

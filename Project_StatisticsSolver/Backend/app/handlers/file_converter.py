@@ -12,11 +12,13 @@ def file_converter(file):
 
     try:
         if ext == '.sav':
-            df, _ = pyreadstat.read_sav(temp_path)
+            df = pyreadstat.read_sav(temp_path)
         elif ext == '.csv':
             df = pd.read_csv(temp_path)
         elif ext in ['.xls', '.xlsx']:
             df = pd.read_excel(temp_path, engine='openpyxl')
+        elif ext == '.ods':
+            df = pd.read_excel(temp_path, engine='odf')
         else:
             raise ValueError(f"Tipo de archivo no soportado: {ext}")
 

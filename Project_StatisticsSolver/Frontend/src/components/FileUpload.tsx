@@ -1,12 +1,8 @@
+import type { TableFile } from "@/@types";
 import axios from "axios";
 import type { ChangeEvent } from "react";
-
-export interface ConverterFile {
-  columns: string[];
-  data: (string | number | null)[][];
-}
 interface FileUploadProps {
-  setData: (data: ConverterFile) => void;
+  setData: (data: TableFile) => void;
 }
 
 export const FileUpload = ({ setData }: FileUploadProps) => {
@@ -35,6 +31,10 @@ export const FileUpload = ({ setData }: FileUploadProps) => {
   };
 
   return (
-    <input type="file" accept=".csv,.sav,.xlsx,.xls" onChange={handleFile} />
+    <input
+      type="file"
+      accept=".csv,.sav,.xlsx,.xls,.ods"
+      onChange={handleFile}
+    />
   );
 };

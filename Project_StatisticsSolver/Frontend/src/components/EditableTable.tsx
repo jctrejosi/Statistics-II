@@ -67,9 +67,9 @@ export const EditableTable = ({ columns, data }: EditableTableProps) => {
 
   return (
     <div>
-      <button onClick={addRow}>➕ Añadir fila</button>
+      <button onClick={addRow}>+ Añadir fila</button>
       <div>
-        <button onClick={addColumn}>➕ Añadir columna</button>
+        <button onClick={addColumn}>+ Añadir columna</button>
         <label htmlFor="column">Nombre de la columna:</label>
         <input
           id="column"

@@ -1,14 +1,14 @@
 import { EditableTable } from "@components/EditableTable";
-import { FileUpload, type ConverterFile } from "@components/FileUpload";
+import { FileUpload } from "@components/FileUpload";
 import { useState } from "react";
+import { AnovaAnalysis } from "./modules/AnovaAnalysis";
+import type { TableFile } from "./@types";
 
 export const App = () => {
-  const [dataTable, setDataTable] = useState<ConverterFile | undefined>(
-    undefined
-  );
+  const [dataTable, setDataTable] = useState<TableFile | undefined>(undefined);
 
   return (
-    <>
+    <div className="App">
       <FileUpload
         setData={(data) => {
           setDataTable(data);
@@ -18,6 +18,7 @@ export const App = () => {
         columns={dataTable?.columns || []}
         data={dataTable?.data || []}
       />
-    </>
+      <AnovaAnalysis data={dataTable} />
+    </div>
   );
 };
