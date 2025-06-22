@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.stats import f_oneway
 
-def clean_data(data):
+def run_anova(data):
     # Transponer filas en columnas
     columnas = list(zip(*data))
 
@@ -31,26 +31,45 @@ def clean_data(data):
     media_global = np.mean([m for m in medias if m is not None])
 
     # Cálculo de SSB y SSE por grupo
-    ssb_por_grupo = []
-    sse_por_grupo = []
+    ssb_strings = []
+    sse_strings = []
+    ssb = []
+    sse = []
 
     for i, grupo in enumerate(datos_limpios):
         ni = len(grupo)
         media_i = medias[i]
 
-        ssb = ni * (media_i - media_global) ** 2
-        ssb_por_grupo.append(round(ssb, 4))
+        # === SSB ===
+        ssb_val = round(ni * (media_i - media_global) ** 2, 2)
+        ssb.append(ssb_val)
+        ssb_str = f"{ni} × ({media_i} - {round(media_global, 3)})² = {ssb_val}"
+        ssb_strings.append(ssb_str)
 
-        sse = sum((x - media_i) ** 2 for x in grupo)
-        sse_por_grupo.append(round(sse, 4))
+        # === SSE ===
+        sse_val = 0
+        sse_terms = []
+
+        for x in grupo:
+            term = (x - media_i) ** 2
+            sse_val += term
+            sse_terms.append(f"({x} - {media_i})²")
+
+        sse_str = f" + ".join(sse_terms) + f" = {round(sse_val, 2)}"
+        sse.append(round(sse_val, 2))
+        sse_strings.append(sse_str)
 
     return {
         "n_data": total_valores,
         "grupos": datos_limpios,
         "medias": medias,
         "media_global": round(media_global, 3),
-        "ssb": ssb_por_grupo,
-        "sse": sse_por_grupo
+        "ssb_string": ssb_strings,
+        "sse_string": sse_strings,
+        "sse_total": sum(sse),
+        "ssb_total": sum(ssb),
+        "ssb": ssb,
+        "sse": sse
     }
 
 
@@ -68,14 +87,9 @@ def anova_analysis(data, columns, alpha=0.05):
     """
 
     # Limpiar los datos: convertir a float y eliminar NaN y strings vacíos
-    resultados = clean_data(data)
+    resultados = run_anova(data)
 
-    n_data = resultados["n_data"]
     grupos = resultados["grupos"]
-    medias = resultados["medias"]
-    media_global = resultados["media_global"]
-    ssb = resultados["ssb"]
-    sse = resultados["sse"]
 
     # Verificación: asegurarse de que cada grupo tiene al menos 2 datos
     if any(len(grupo) < 2 for grupo in grupos):
@@ -93,13 +107,17 @@ def anova_analysis(data, columns, alpha=0.05):
 
     return {
         "ok": True,
-        "n_data": n_data,
+        "n_data": resultados["n_data"],
         "k_groups": len(columns),
         "f_statistics": round(f_statistic, 3),
-        "means": medias,
-        "sse": sse,
-        "ssb": ssb,
-        "global_mean": media_global,
+        "means": resultados["medias"],
+        "global_mean": resultados["media_global"],
         "p_value": round(p_value, 3),
-        "conclusion": conclusion
+        "conclusion": conclusion,
+        "sse": resultados["sse"],
+        "ssb": resultados["ssb"],
+        "sse_string": resultados["sse_string"],
+        "ssb_string": resultados["ssb_string"],
+        "ssb_total": resultados["ssb_total"],
+        "sse_total": resultados["sse_total"]
     }

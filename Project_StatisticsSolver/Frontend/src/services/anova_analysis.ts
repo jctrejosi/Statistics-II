@@ -12,10 +12,15 @@ export type AnovaResult = {
   conclusion: string;
   error?: string;
   means: number[];
+  global_mean: number;
   n_data: number;
   k_groups: number;
   ssb: number[];
   sse: number[];
+  sse_string: string[];
+  ssb_string: string[];
+  ssb_total: number;
+  sse_total: number;
 };
 
 export const anova_analysis = async (data: DataSend) => {

@@ -47,17 +47,26 @@ export const AnovaResultsTable = ({ result, data }: Props) => {
             const media = result.means[colIndex];
             const sse = result.sse[colIndex];
             const ssb = result.ssb[colIndex];
+            const sse_str = result.sse_string[colIndex];
+            const ssb_str = result.ssb_string[colIndex];
 
             return (
               <tr key={colIndex}>
                 <td>{grupo}</td>
                 <td>{valoresStr}</td>
                 <td>{media !== undefined ? media.toFixed(2) : "—"}</td>
-                <td>{sse}</td>
-                <td>{ssb}</td>
+                <td title={sse_str}>{sse}</td>
+                <td title={ssb_str}>{ssb}</td>
               </tr>
             );
           })}
+          <tr>
+            <td></td>
+            <td></td>
+            <td>{result.global_mean}</td>
+            <td>{result.sse_total}</td>
+            <td>{result.ssb_total}</td>
+          </tr>
         </tbody>
       </table>
     </div>
