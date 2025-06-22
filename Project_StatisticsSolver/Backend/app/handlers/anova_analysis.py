@@ -1,3 +1,4 @@
+import numpy as np
 from scipy.stats import f_oneway
 
 def clean_data(data):
@@ -21,13 +22,36 @@ def clean_data(data):
             except (ValueError, TypeError):
                 continue
 
-        if limpios:  # Solo agregamos si hay al menos un valor válido
+        if limpios:
             datos_limpios.append(limpios)
             total_valores += len(limpios)
             media = round(sum(limpios) / len(limpios), 3)
             medias.append(media)
 
-    return total_valores, datos_limpios, medias
+    media_global = np.mean([m for m in medias if m is not None])
+
+    # Cálculo de SSB y SSE por grupo
+    ssb_por_grupo = []
+    sse_por_grupo = []
+
+    for i, grupo in enumerate(datos_limpios):
+        ni = len(grupo)
+        media_i = medias[i]
+
+        ssb = ni * (media_i - media_global) ** 2
+        ssb_por_grupo.append(round(ssb, 4))
+
+        sse = sum((x - media_i) ** 2 for x in grupo)
+        sse_por_grupo.append(round(sse, 4))
+
+    return {
+        "n_data": total_valores,
+        "grupos": datos_limpios,
+        "medias": medias,
+        "media_global": round(media_global, 3),
+        "ssb": ssb_por_grupo,
+        "sse": sse_por_grupo
+    }
 
 
 def anova_analysis(data, columns, alpha=0.05):
@@ -44,7 +68,14 @@ def anova_analysis(data, columns, alpha=0.05):
     """
 
     # Limpiar los datos: convertir a float y eliminar NaN y strings vacíos
-    n_data, grupos, medias = clean_data(data)
+    resultados = clean_data(data)
+
+    n_data = resultados["n_data"]
+    grupos = resultados["grupos"]
+    medias = resultados["medias"]
+    media_global = resultados["media_global"]
+    ssb = resultados["ssb"]
+    sse = resultados["sse"]
 
     # Verificación: asegurarse de que cada grupo tiene al menos 2 datos
     if any(len(grupo) < 2 for grupo in grupos):
@@ -66,6 +97,9 @@ def anova_analysis(data, columns, alpha=0.05):
         "k_groups": len(columns),
         "f_statistics": round(f_statistic, 3),
         "means": medias,
+        "sse": sse,
+        "ssb": ssb,
+        "global_mean": media_global,
         "p_value": round(p_value, 3),
         "conclusion": conclusion
     }

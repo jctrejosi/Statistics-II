@@ -14,6 +14,8 @@ export type AnovaResult = {
   means: number[];
   n_data: number;
   k_groups: number;
+  ssb: number[];
+  sse: number[];
 };
 
 export const anova_analysis = async (data: DataSend) => {

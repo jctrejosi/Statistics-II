@@ -10,7 +10,7 @@ type props = {
 
 export const AnovaAnalysis = ({ data }: props) => {
   const [view, setView] = useState<boolean>(false);
-  const [result, setResult] = useState<AnovaResult | null>(null);
+  const [result, setResult] = useState<AnovaResult>({} as AnovaResult);
 
   const handleSend = async () => {
     if (!data || !data.columns || !data.data) {
@@ -33,20 +33,22 @@ export const AnovaAnalysis = ({ data }: props) => {
   return (
     <div>
       <button onClick={handleSend}>Análisis ANOVA</button>
-      {view && (
+      {view && result.ok && (
         <>
-          <h1>Resultados del Análisis ANOVA</h1>
+          <h1>Resultados del Análisis ANOVA (one-way)</h1>
           <p>H0: Las medias de los tres métodos son iguales.</p>
           <p>H1: Al menos una media es diferente.</p>
-          <p>Total de grupos: 𝑘 = {result?.k_groups}</p>
-          <p>Total de datos: 𝑁 = {result?.n_data}</p>
+          <p>Total de grupos: 𝑘 = {result.k_groups}</p>
+          <p>Total de datos: 𝑁 = {result.n_data}</p>
           <AnovaResultsTable data={data} result={result} />
+          <p>df(entre) = 𝑘 - 1 = {result.k_groups - 1}</p>
+          <p>df(dentro) = 𝑁 - 𝑘 = {result.n_data - result.k_groups}</p>
           <p>{result?.conclusion}</p>
           <p>Estadístico: {result?.f_statistics}</p>
           <p>Valor p: {result?.p_value}</p>
-          {result?.error && <p>Error: {result.error}</p>}
         </>
       )}
+      {result?.error && <p>Error: {result.error}</p>}
     </div>
   );
 };

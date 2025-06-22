@@ -32,6 +32,8 @@ export const AnovaResultsTable = ({ result, data }: Props) => {
             <th>Grupo</th>
             <th>Datos del grupo</th>
             <th>Media</th>
+            <th>SSE</th>
+            <th>SSB</th>
           </tr>
         </thead>
         <tbody>
@@ -43,12 +45,16 @@ export const AnovaResultsTable = ({ result, data }: Props) => {
             )[];
             const valoresStr = valores.map((v) => v.toString()).join(", ");
             const media = result.means[colIndex];
+            const sse = result.sse[colIndex];
+            const ssb = result.ssb[colIndex];
 
             return (
               <tr key={colIndex}>
                 <td>{grupo}</td>
                 <td>{valoresStr}</td>
                 <td>{media !== undefined ? media.toFixed(2) : "—"}</td>
+                <td>{sse}</td>
+                <td>{ssb}</td>
               </tr>
             );
           })}
