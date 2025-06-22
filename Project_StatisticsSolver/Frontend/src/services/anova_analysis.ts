@@ -21,6 +21,8 @@ export type AnovaResult = {
   ssb_string: string[];
   ssb_total: number;
   sse_total: number;
+  mse: number;
+  msb: number;
 };
 
 export const anova_analysis = async (data: DataSend) => {

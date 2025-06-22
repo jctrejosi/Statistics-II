@@ -44,7 +44,15 @@ export const AnovaAnalysis = ({ data }: props) => {
           <p>df(entre) = 𝑘 - 1 = {result.k_groups - 1}</p>
           <p>df(dentro) = 𝑁 - 𝑘 = {result.n_data - result.k_groups}</p>
           <p>{result?.conclusion}</p>
-          <p>Estadístico: {result?.f_statistics}</p>
+          <p>
+            MSB = SSB/de(entre) = {result.ssb_total}/({result.k_groups} - 1) ={" "}
+            {result.msb}
+          </p>
+          <p>
+            MSE = SSE/de(dentro) = {result.sse_total}/({result.n_data} -{" "}
+            {result.k_groups}) = {result.mse}
+          </p>
+          <p>Estadístico F = MSB/MSE = {result?.f_statistics}</p>
           <p>Valor p: {result?.p_value}</p>
         </>
       )}

@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.stats import f_oneway
+from scipy.stats import f
 
 def run_anova(data):
     # Transponer filas en columnas
@@ -25,7 +25,7 @@ def run_anova(data):
         if limpios:
             datos_limpios.append(limpios)
             total_valores += len(limpios)
-            media = round(sum(limpios) / len(limpios), 3)
+            media = sum(limpios) / len(limpios)
             medias.append(media)
 
     media_global = np.mean([m for m in medias if m is not None])
@@ -41,9 +41,9 @@ def run_anova(data):
         media_i = medias[i]
 
         # === SSB ===
-        ssb_val = round(ni * (media_i - media_global) ** 2, 2)
+        ssb_val = ni * (media_i - media_global) ** 2
         ssb.append(ssb_val)
-        ssb_str = f"{ni} × ({media_i} - {round(media_global, 3)})² = {ssb_val}"
+        ssb_str = f"{ni} × ({media_i} - {round(media_global, 3)})² = {round(ssb_val, 2)}"
         ssb_strings.append(ssb_str)
 
         # === SSE ===
@@ -59,17 +59,25 @@ def run_anova(data):
         sse.append(round(sse_val, 2))
         sse_strings.append(sse_str)
 
+        sum_ssb = sum(ssb)
+        sum_sse = sum(sse)
+
+        msb = sum_ssb/(len(columnas) - 1)
+        mse = sum_sse/(total_valores - len(columnas))
+
     return {
         "n_data": total_valores,
         "grupos": datos_limpios,
         "medias": medias,
-        "media_global": round(media_global, 3),
+        "media_global": media_global,
         "ssb_string": ssb_strings,
         "sse_string": sse_strings,
-        "sse_total": sum(sse),
-        "ssb_total": sum(ssb),
+        "sse_total": sum_sse,
+        "ssb_total": sum_ssb,
         "ssb": ssb,
-        "sse": sse
+        "sse": sse,
+        "msb": msb,
+        "mse": mse
     }
 
 
@@ -96,7 +104,11 @@ def anova_analysis(data, columns, alpha=0.05):
         return {"error": "Cada grupo debe tener al menos dos valores."}
 
     # Aplicar ANOVA
-    f_statistic, p_value = f_oneway(*grupos)
+    k_groups = len(columns)
+    f_statistic = resultados["msb"]/resultados["mse"]
+    df_between = k_groups - 1
+    df_within = resultados["n_data"] - k_groups
+    p_value = 1 - f.cdf(f_statistic, df_between, df_within)
 
     # Conclusión
     conclusion = (
@@ -108,16 +120,18 @@ def anova_analysis(data, columns, alpha=0.05):
     return {
         "ok": True,
         "n_data": resultados["n_data"],
-        "k_groups": len(columns),
-        "f_statistics": round(f_statistic, 3),
-        "means": resultados["medias"],
-        "global_mean": resultados["media_global"],
-        "p_value": round(p_value, 3),
+        "k_groups": k_groups,
+        "f_statistics": round(f_statistic, 2),
+        "means": [round(x, 2) for x in resultados["medias"]],
+        "global_mean": round(resultados["media_global"], 2),
+        "p_value": round(p_value, 2),
         "conclusion": conclusion,
-        "sse": resultados["sse"],
-        "ssb": resultados["ssb"],
+        "sse":  [round(x, 2) for x in resultados["sse"]],
+        "ssb": [round(x, 2) for x in resultados["ssb"]],
         "sse_string": resultados["sse_string"],
         "ssb_string": resultados["ssb_string"],
-        "ssb_total": resultados["ssb_total"],
-        "sse_total": resultados["sse_total"]
+        "ssb_total": round(resultados["ssb_total"], 2),
+        "sse_total": round(resultados["sse_total"],2),
+        "mse": round(resultados["mse"], 2),
+        "msb": round(resultados["msb"], 2)
     }
