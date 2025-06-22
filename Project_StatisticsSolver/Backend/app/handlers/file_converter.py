@@ -12,7 +12,7 @@ def file_converter(file):
 
     try:
         if ext == '.sav':
-            df = pyreadstat.read_sav(temp_path)
+            df, meta = pyreadstat.read_sav(temp_path)
         elif ext == '.csv':
             df = pd.read_csv(temp_path)
         elif ext in ['.xls', '.xlsx']:
@@ -22,8 +22,8 @@ def file_converter(file):
         else:
             raise ValueError(f"Tipo de archivo no soportado: {ext}")
 
-        columnas = list(df.columns)
-        data_json = df[columnas].values.tolist()
+        columnas = df.columns.tolist()
+        data_json = df.values.tolist()
 
         return {
             "columns": columnas,

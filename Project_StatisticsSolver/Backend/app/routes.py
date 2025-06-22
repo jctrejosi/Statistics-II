@@ -12,8 +12,9 @@ def converter_file():
     file = request.files['file']
 
     try:
-        resultado = file_converter(file)
-        return jsonify(resultado), 200
+        result = file_converter(file)
+        response = jsonify(result)
+        return response, 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
