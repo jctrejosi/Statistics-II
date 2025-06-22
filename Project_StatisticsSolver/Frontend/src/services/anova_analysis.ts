@@ -11,6 +11,9 @@ export type AnovaResult = {
   p_value: number;
   conclusion: string;
   error?: string;
+  means: number[];
+  n_data: number;
+  k_groups: number;
 };
 
 export const anova_analysis = async (data: DataSend) => {

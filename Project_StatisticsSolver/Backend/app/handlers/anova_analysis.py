@@ -1,5 +1,35 @@
 from scipy.stats import f_oneway
 
+def clean_data(data):
+    # Transponer filas en columnas
+    columnas = list(zip(*data))
+
+    datos_limpios = []
+    medias = []
+    total_valores = 0
+
+    for columna in columnas:
+        limpios = []
+
+        for valor in columna:
+            if valor is None:
+                continue
+
+            try:
+                num = float(valor)
+                limpios.append(num)
+            except (ValueError, TypeError):
+                continue
+
+        if limpios:  # Solo agregamos si hay al menos un valor válido
+            datos_limpios.append(limpios)
+            total_valores += len(limpios)
+            media = round(sum(limpios) / len(limpios), 3)
+            medias.append(media)
+
+    return total_valores, datos_limpios, medias
+
+
 def anova_analysis(data, columns, alpha=0.05):
     """
     Realiza un análisis ANOVA de un solo factor.
@@ -13,8 +43,8 @@ def anova_analysis(data, columns, alpha=0.05):
         dict: Diccionario con estadísticas ANOVA, p-valor y conclusión.
     """
 
-    # Transponer la matriz para agrupar los datos por columnas
-    grupos = list(zip(*data))  # Transforma filas en columnas
+    # Limpiar los datos: convertir a float y eliminar NaN y strings vacíos
+    n_data, grupos, medias = clean_data(data)
 
     # Verificación: asegurarse de que cada grupo tiene al menos 2 datos
     if any(len(grupo) < 2 for grupo in grupos):
@@ -32,7 +62,10 @@ def anova_analysis(data, columns, alpha=0.05):
 
     return {
         "ok": True,
-        "f_statistics": f_statistic,
-        "p_value": p_value,
+        "n_data": n_data,
+        "k_groups": len(columns),
+        "f_statistics": round(f_statistic, 3),
+        "means": medias,
+        "p_value": round(p_value, 3),
         "conclusion": conclusion
     }
