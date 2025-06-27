@@ -6,6 +6,9 @@ import type { TableFile } from "./@types";
 
 export const App = () => {
   const [dataTable, setDataTable] = useState<TableFile | undefined>(undefined);
+  const [dataEditable, setDataEditable] = useState<TableFile | undefined>(
+    undefined
+  );
 
   return (
     <div className="App">
@@ -17,8 +20,9 @@ export const App = () => {
       <EditableTable
         columns={dataTable?.columns || []}
         data={dataTable?.data || []}
+        setData={(data) => setDataEditable(data)}
       />
-      <AnovaAnalysis data={dataTable} />
+      <AnovaAnalysis data={dataEditable} />
     </div>
   );
 };

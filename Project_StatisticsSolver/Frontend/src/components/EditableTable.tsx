@@ -1,15 +1,17 @@
-import { useEffect, useRef, useState } from "react";
+import type { TableFile } from "@/@types";
+import { useEffect, useRef } from "react";
 
 interface EditableTableProps {
   columns: string[];
   data: (number | string | null)[][];
+  setData: (data: TableFile) => void;
 }
 
-export const EditableTable = ({ columns, data }: EditableTableProps) => {
-  const [tableData, setTableData] =
-    useState<(number | string | null)[][]>(data);
-  const [columnsNames, setColumns] = useState<string[]>([]);
-
+export const EditableTable = ({
+  columns,
+  data,
+  setData,
+}: EditableTableProps) => {
   const columnName = useRef<HTMLInputElement>(null);
 
   const handleCellChange = (
@@ -17,17 +19,16 @@ export const EditableTable = ({ columns, data }: EditableTableProps) => {
     colIndex: number,
     value: string | number
   ) => {
-    const updated = [...tableData];
+    const updated = [...data];
     updated[rowIndex][colIndex] = value;
-    setTableData(updated);
+    setData({ columns, data: updated })
   };
 
   const addRow = () => {
-    if (columnsNames.length === 0) {
+    if (columns.length === 0) {
       alert("Por favor, añade al menos una columna antes de añadir filas.");
       return;
     }
-    setTableData([...tableData, Array(columnsNames.length).fill("")]);
   };
 
   const addColumn = () => {
@@ -38,32 +39,25 @@ export const EditableTable = ({ columns, data }: EditableTableProps) => {
       return;
     }
 
-    if (columnsNames.includes(newColumnName)) {
+    if (columns.includes(newColumnName)) {
       alert("Ese nombre de columna ya existe.");
       return;
     }
 
     let updatedTable: (string | number | null)[][];
 
-    if (tableData.length === 0) {
+    if (data.length === 0) {
       updatedTable = [[null]];
     } else {
-      updatedTable = tableData.map((row) => [...row, null]);
+      updatedTable = data.map((row) => [...row, null]);
     }
-
-    setTableData(updatedTable);
-    setColumns([...columnsNames, newColumnName]);
 
     columnName.current!.value = "";
   };
 
   useEffect(() => {
-    setTableData(data);
-  }, [data]);
-
-  useEffect(() => {
-    setColumns(columns);
-  }, [columns]);
+    setData({ columns, data });
+  }, [columns, data, setData]);
 
   return (
     <div>
@@ -86,13 +80,13 @@ export const EditableTable = ({ columns, data }: EditableTableProps) => {
       >
         <thead>
           <tr>
-            {columnsNames.map((col, i) => (
+            {columns.map((col, i) => (
               <th key={i}>{col}</th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {tableData.map((row, rowIndex) => (
+          {data.map((row, rowIndex) => (
             <tr key={rowIndex}>
               {row.map((cell, colIndex) => (
                 <td key={colIndex}>
