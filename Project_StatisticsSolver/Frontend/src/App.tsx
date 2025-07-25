@@ -24,13 +24,13 @@ export const App = () => {
           setDataTable(data);
         }}
       />
+      <AnovaAnalysis data={dataEditable} />
+      <LinealRegresion data={dataEditable} />
       <EditableTable
         columns={dataEditable?.columns || []}
         data={dataEditable?.data || []}
         setData={(data) => setDataEditable(data)}
       />
-      <AnovaAnalysis data={dataEditable} />
-      <LinealRegresion data={dataEditable} />
     </div>
   );
 };

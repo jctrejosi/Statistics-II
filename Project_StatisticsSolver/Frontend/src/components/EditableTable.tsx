@@ -54,6 +54,17 @@ export const EditableTable = ({
     setData({ columns: newColumns, data: newData });
   };
 
+  const deleteColumn = (colIndex: number) => {
+    const newColumns = columns.filter((_, i) => i !== colIndex);
+    const newData = data.map((row) => row.filter((_, i) => i !== colIndex));
+    setData({ columns: newColumns, data: newData });
+  };
+
+  const deleteRow = (rowIndex: number) => {
+    const newData = data.filter((_, i) => i !== rowIndex);
+    setData({ columns, data: newData });
+  };
+
   return (
     <div>
       <button onClick={addRow}>+ Añadir fila</button>
@@ -76,8 +87,18 @@ export const EditableTable = ({
         <thead>
           <tr>
             {columns.map((col, i) => (
-              <th key={i}>{col}</th>
+              <th key={i}>
+                {col}
+                <button
+                  onClick={() => deleteColumn(i)}
+                  style={{ marginLeft: "0.5rem", color: "red" }}
+                  title={`Eliminar columna "${col}"`}
+                >
+                  X
+                </button>
+              </th>
             ))}
+            <th>{/* espacio para el botón de borrar fila */}</th>
           </tr>
         </thead>
         <tbody>
@@ -95,6 +116,15 @@ export const EditableTable = ({
                   />
                 </td>
               ))}
+              <td>
+                <button
+                  onClick={() => deleteRow(rowIndex)}
+                  style={{ color: "red" }}
+                  title={`Eliminar fila ${rowIndex + 1}`}
+                >
+                  X
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
