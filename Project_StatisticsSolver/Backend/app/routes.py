@@ -40,12 +40,8 @@ def lineal_regression():
     payload = request.get_json()
 
     if not payload or 'data' not in payload or 'columns' not in payload or 'dependent' not in payload:
-        return jsonify({"error": "Debe enviar 'data', 'columns' y 'dependent' en el cuerpo"}), 400
+        return jsonify({"ok": False, "error": "Debe enviar 'data', 'columns' y 'dependent' en el cuerpo"}), 400
 
-    try:
-        result = run_regression(payload['data'], payload['columns'], payload['dependent'])
-        status = 200 if result.get("ok") else 400
-        return jsonify(result), status
+    result = run_regression(payload['data'], payload['columns'], payload['dependent'])
+    return jsonify(result), 200 if result.get("ok") else 400
 
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500

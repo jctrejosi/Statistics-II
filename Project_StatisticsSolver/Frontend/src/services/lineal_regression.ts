@@ -52,7 +52,7 @@ export const set_regression = async (data: DataSend) => {
   try {
     const res = await axios.post<RegressionResponse>(
       "http://localhost:5000/api/v1.0/regression",
-      data
+      { ...data, dependent: "salario" }
     );
     return res.data;
   } catch (err) {
