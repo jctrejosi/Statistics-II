@@ -32,12 +32,24 @@ export type RegressionResponse = {
     shapiro_p: number;
     ks_stat: number;
     ks_p: number;
+    jarque_bera_stat: number;
+    jarque_bera_p: number;
+    skewness: number;
+    kurtosis: number;
   };
   breusch_pagan: {
     "Lagrange multiplier": number;
     "p-value": number;
     "f-value": number;
     "f p-value": number;
+    LM_p: number; // por compatibilidad extra
+    F_p: number;
+  };
+  white_test: {
+    stat: number;
+    p_value: number;
+    f_stat: number;
+    f_p_value: number;
   };
   durbin_watson: number;
   vif: {

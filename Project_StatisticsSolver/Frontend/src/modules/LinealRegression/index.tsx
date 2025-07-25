@@ -92,15 +92,38 @@ export const LinealRegresion = ({ data }: props) => {
             <strong>Kolmogorov-Smirnov p:</strong> {result.normality.ks_p}
           </p>
           <p>
+            <strong>Jarque-Bera p:</strong> {result.normality.jarque_bera_p}
+          </p>
+          <p>
+            <strong>Skewness:</strong> {result.normality.skewness}
+          </p>
+          <p>
+            <strong>Kurtosis:</strong> {result.normality.kurtosis}
+          </p>
+          <p>
             <strong>Durbin-Watson:</strong> {result.durbin_watson}
           </p>
 
           <h2>Breusch-Pagan</h2>
           <p>
-            <strong>LM p:</strong> {result.breusch_pagan["p-value"]}
+            <strong>LM p:</strong> {result.breusch_pagan["LM_p"]}
           </p>
           <p>
-            <strong>F p:</strong> {result.breusch_pagan["f p-value"]}
+            <strong>F p:</strong> {result.breusch_pagan["F_p"]}
+          </p>
+
+          <h2>White (Heterocedasticidad)</h2>
+          <p>
+            <strong>Estadístico:</strong> {result.white_test.stat}
+          </p>
+          <p>
+            <strong>p-valor:</strong> {result.white_test.p_value}
+          </p>
+          <p>
+            <strong>F-stat:</strong> {result.white_test.f_stat}
+          </p>
+          <p>
+            <strong>F p-valor:</strong> {result.white_test.f_p_value}
           </p>
 
           <h2>VIF (Multicolinealidad)</h2>
