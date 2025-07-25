@@ -58,6 +58,7 @@ export type RegressionResponse = {
   }[];
   cooks_distance: number[];
   conclusion: string;
+  interpretacion: string;
 };
 
 export const set_regression = async (data: DataSend) => {

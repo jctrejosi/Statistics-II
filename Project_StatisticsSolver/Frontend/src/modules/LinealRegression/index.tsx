@@ -143,6 +143,13 @@ export const LinealRegresion = ({ data }: props) => {
               ))}
             </tbody>
           </table>
+
+          <div className="interpretacion-box">
+            <h2>Interpretación del Modelo</h2>
+            <pre style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>
+              {result.interpretacion}
+            </pre>
+          </div>
         </>
       )}
     </div>
