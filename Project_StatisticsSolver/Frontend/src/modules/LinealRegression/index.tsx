@@ -150,6 +150,38 @@ export const LinealRegresion = ({ data }: props) => {
               {result.interpretacion}
             </pre>
           </div>
+
+          <h2>Tabla de Residuos y Diagnóstico</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Y observado</th>
+                <th>Y predicho</th>
+                <th>Residuo</th>
+                <th>Residuo estandarizado</th>
+                <th>Leverage</th>
+                <th>Cook's distance</th>
+                <th>Outlier</th>
+              </tr>
+            </thead>
+            <tbody>
+              {result.results_table?.map((row, index) => (
+                <tr key={index}>
+                  <td>{row.id}</td>
+                  <td>{row.Y_observado.toFixed(4)}</td>
+                  <td>{row.Y_predicho.toFixed(4)}</td>
+                  <td>{row.Residuo.toFixed(4)}</td>
+                  <td>{row.Residuo_estandarizado.toFixed(4)}</td>
+                  <td>{row.Leverage.toFixed(4)}</td>
+                  <td>{row.Cooks_distance.toFixed(4)}</td>
+                  <td style={{ color: row.Outlier ? "red" : "black" }}>
+                    {row.Outlier ? "Sí" : "No"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </>
       )}
     </div>

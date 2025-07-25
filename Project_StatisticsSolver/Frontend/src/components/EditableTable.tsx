@@ -86,6 +86,7 @@ export const EditableTable = ({
       >
         <thead>
           <tr>
+            <th></th>
             {columns.map((col, i) => (
               <th key={i}>
                 {col}
@@ -104,6 +105,7 @@ export const EditableTable = ({
         <tbody>
           {data.map((row, rowIndex) => (
             <tr key={rowIndex}>
+              <td>{rowIndex}</td>
               {row.map((cell, colIndex) => (
                 <td key={colIndex}>
                   <input

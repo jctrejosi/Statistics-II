@@ -91,10 +91,6 @@ def run_regression(data: list, columns: list, dependent: str, alpha: float = 0.0
             vif_value = variance_inflation_factor(X_const.values, i)
             vif.append({"variable": col, "VIF": float(vif_value)})
 
-        # Cook's distance
-        cooks_d, _ = model.get_influence().cooks_distance
-        cooks_list = [float(x) for x in cooks_d]
-
         # Coeficientes
         coefs = [{
             "variable": var,
@@ -102,59 +98,39 @@ def run_regression(data: list, columns: list, dependent: str, alpha: float = 0.0
             "p_value": float(model.pvalues[var])
         } for var in model.params.index]
 
-        # Conclusión
+        # Cook's distance y otros valores diagnósticos
+        influence = model.get_influence()
+        summary_frame = influence.summary_frame()
+
+        results_table = pd.DataFrame({
+            "id": df.index,
+            "Y_observado": model.model.endog,
+            "Y_predicho": model.fittedvalues,
+            "Residuo": model.resid,
+            "Residuo_estandarizado": summary_frame["standard_resid"],
+            "Leverage": summary_frame["hat_diag"],
+            "Cooks_distance": summary_frame["cooks_d"],
+            "Outlier": np.abs(summary_frame["standard_resid"]) > 2
+        })
+
+        # Conclusión global
         conclusion = (
             "Rechazamos H0: el modelo es significativo"
             if f_pvalue < alpha else
             "No rechazamos H0: el modelo no es significativo"
         )
 
-        modelo_resultado = {
-            "ok": True,
-            "n_obs": int(model.nobs),
-            "n_vars": int(len(model.params) - 1),
-            "r2": round(r2, 4),
-            "r2_adj": round(r2_adj, 4),
-            "f_statistic": round(f_stat, 4),
-            "f_pvalue": round(f_pvalue, 4),
-            "anova": anova,
-            "coefs": coefs,
-            "normality": {
-                "shapiro_stat": round(sw_stat, 4),
-                "shapiro_p": round(sw_p, 4),
-                "ks_stat": round(ks_stat, 4),
-                "ks_p": round(ks_p, 4),
-                "jarque_bera_stat": round(jb_stat, 4),
-                "jarque_bera_p": round(jb_p, 4),
-                "skewness": round(jb_skew, 4),
-                "kurtosis": round(jb_kurt, 4)
-            },
-            "breusch_pagan": {
-                "LM": round(bp_test[0], 4),
-                "LM_p": round(bp_test[1], 4),
-                "F": round(bp_test[2], 4),
-                "F_p": round(bp_test[3], 4)
-            },
-            "white_test": white_result,
-            "durbin_watson": round(dw, 4),
-            "vif": vif,
-            "cooks_distance": cooks_list,
-            "conclusion": conclusion,
-            "interpretacion": ""
-        }
-
-        # Crear texto para coeficientes y VIF
+        # Cadena de coeficientes y VIF para el prompt
         coefs_str = "\n".join([
             f"{c['variable']}\t{c['coef']}\t{c['p_value']}"
-            for c in modelo_resultado["coefs"]
+            for c in coefs
         ])
         vif_str = "\n".join([
             f"{v['variable']}\t{v['VIF']}"
-            for v in modelo_resultado["vif"]
+            for v in vif
         ])
 
-        ## Prompt para gpt
-
+        # Prompt para OpenAI
         prompt = f"""
 A continuación, te presento todos los resultados relevantes de una regresión lineal múltiple. Quiero que los interpretes en el **mismo orden** en el que los presento, **sin asumir nada adicional**, y que escribas la respuesta con **títulos visibles para cada sección**, seguidos de una explicación clara, útil y técnica.
 
@@ -180,40 +156,40 @@ Variable\tCoeficiente\tValor p
 
 **Resumen del Modelo**
 
-Observaciones: {modelo_resultado["n_obs"]}  
-Variables independientes: {modelo_resultado["n_vars"]}  
-R²: {modelo_resultado["r2"]}  
-R² ajustado: {modelo_resultado["r2_adj"]}  
-Estadístico F: {modelo_resultado["f_statistic"]}  
-Valor p del modelo: {modelo_resultado["f_pvalue"]}  
-Conclusión: {modelo_resultado["conclusion"]}
+Observaciones: {len(df)}  
+Variables independientes: {X.shape[1]}  
+R²: {round(r2, 4)}  
+R² ajustado: {round(r2_adj, 4)}  
+Estadístico F: {round(f_stat, 4)}  
+Valor p del modelo: {round(f_pvalue, 4)}  
+Conclusión: {conclusion}
 
 ---
 
 **Pruebas de Supuestos**
 
-Shapiro-Wilk p: {modelo_resultado["normality"]["shapiro_p"]}  
-Kolmogorov-Smirnov p: {modelo_resultado["normality"]["ks_p"]}  
-Jarque-Bera p: {modelo_resultado["normality"]["jarque_bera_p"]}  
-Skewness: {modelo_resultado["normality"]["skewness"]}  
-Kurtosis: {modelo_resultado["normality"]["kurtosis"]}  
-Durbin-Watson: {modelo_resultado["durbin_watson"]}
+Shapiro-Wilk p: {round(sw_p, 4)}  
+Kolmogorov-Smirnov p: {round(ks_p, 4)}  
+Jarque-Bera p: {round(jb_p, 4)}  
+Skewness: {round(jb_skew, 4)}  
+Kurtosis: {round(jb_kurt, 4)}  
+Durbin-Watson: {round(dw, 4)}
 
 ---
 
 **Breusch-Pagan (Heterocedasticidad)**
 
-LM p: {modelo_resultado["breusch_pagan"]["LM_p"]}  
-F p: {modelo_resultado["breusch_pagan"]["F_p"]}
+LM p: {round(bp_test[1], 4)}  
+F p: {round(bp_test[3], 4)}
 
 ---
 
 **White (Heterocedasticidad)**
 
-Estadístico: {modelo_resultado["white_test"].get("stat", "N/A")}  
-p-valor: {modelo_resultado["white_test"].get("p_value", "N/A")}  
-F-stat: {modelo_resultado["white_test"].get("f_stat", "N/A")}  
-F p-valor: {modelo_resultado["white_test"].get("f_p_value", "N/A")}
+Estadístico: {white_result.get("stat", "N/A")}  
+p-valor: {white_result.get("p_value", "N/A")}  
+F-stat: {white_result.get("f_stat", "N/A")}  
+F p-valor: {white_result.get("f_p_value", "N/A")}
 
 ---
 
@@ -225,7 +201,7 @@ Variable\tVIF
 ---
 """
 
-        # Solicitud a OpenAI
+        # Consulta a GPT
         gpt_response = client.chat.completions.create(
             model="gpt-4",
             messages=[
@@ -236,9 +212,34 @@ Variable\tVIF
             max_tokens=1500
         )
 
-        modelo_resultado["interpretacion"] = gpt_response.choices[0].message.content
-
-        return modelo_resultado
+        return {
+            "ok": True,
+            "n_obs": int(model.nobs),
+            "n_vars": int(len(model.params) - 1),
+            "r2": round(r2, 4),
+            "r2_adj": round(r2_adj, 4),
+            "f_statistic": round(f_stat, 4),
+            "f_pvalue": round(f_pvalue, 4),
+            "anova": anova,
+            "coefs": coefs,
+            "normality": {
+                "shapiro_p": round(sw_p, 4),
+                "ks_p": round(ks_p, 4),
+                "jarque_bera_p": round(jb_p, 4),
+                "skewness": round(jb_skew, 4),
+                "kurtosis": round(jb_kurt, 4)
+            },
+            "breusch_pagan": {
+                "LM_p": round(bp_test[1], 4),
+                "F_p": round(bp_test[3], 4)
+            },
+            "white_test": white_result,
+            "durbin_watson": round(dw, 4),
+            "vif": vif,
+            "conclusion": conclusion,
+            "interpretacion": gpt_response.choices[0].message.content,
+            "results_table": results_table.round(4).to_dict(orient="records")
+        }
 
     except Exception as e:
         import traceback
