@@ -13,19 +13,33 @@ def file_converter(file):
     try:
         if ext == '.sav':
             df, meta = pyreadstat.read_sav(temp_path)
+
         elif ext == '.csv':
             df = pd.read_csv(temp_path)
-        elif ext in ['.xls', '.xlsx']:
+
+        elif ext == '.xlsx':
+            # Formato moderno de Excel
             df = pd.read_excel(temp_path, engine='openpyxl')
+
+        elif ext == '.xls':
+            # Formato antiguo de Excel (requiere xlrd==1.2.0)
+            df = pd.read_excel(temp_path, engine='xlrd')
+
         elif ext == '.ods':
             df = pd.read_excel(temp_path, engine='odf')
+
         else:
             raise ValueError(f"Tipo de archivo no soportado: {ext}")
 
+        # Validación de contenido
+        if df.empty:
+            raise ValueError("El archivo fue leído pero no contiene datos.")
+
         columnas = df.columns.tolist()
-        data_json = df.values.tolist()
+        data_json = df.fillna("").values.tolist()  # Limpia NaN para evitar errores en el front
 
         return {
+            "ok": True,
             "columns": columnas,
             "data": data_json
         }

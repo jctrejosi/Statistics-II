@@ -1,5 +1,5 @@
 import type { TableFile } from "@/@types";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 
 interface EditableTableProps {
   columns: string[];
@@ -21,7 +21,7 @@ export const EditableTable = ({
   ) => {
     const updated = [...data];
     updated[rowIndex][colIndex] = value;
-    setData({ columns, data: updated })
+    setData({ columns, data: updated });
   };
 
   const addRow = () => {
@@ -29,12 +29,15 @@ export const EditableTable = ({
       alert("Por favor, añade al menos una columna antes de añadir filas.");
       return;
     }
+
+    const newRow = Array(columns.length).fill(null);
+    setData({ columns, data: [...data, newRow] });
   };
 
   const addColumn = () => {
     const newColumnName = columnName.current?.value.trim() || "";
 
-    if (columnName.current?.value.trim() === "") {
+    if (!newColumnName) {
       alert("Por favor, introduce un nombre para la columna.");
       return;
     }
@@ -44,20 +47,12 @@ export const EditableTable = ({
       return;
     }
 
-    let updatedTable: (string | number | null)[][];
-
-    if (data.length === 0) {
-      updatedTable = [[null]];
-    } else {
-      updatedTable = data.map((row) => [...row, null]);
-    }
+    const newColumns = [...columns, newColumnName];
+    const newData = data.map((row) => [...row, null]);
 
     columnName.current!.value = "";
+    setData({ columns: newColumns, data: newData });
   };
-
-  useEffect(() => {
-    setData({ columns, data });
-  }, [columns, data, setData]);
 
   return (
     <div>

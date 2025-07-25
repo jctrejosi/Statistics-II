@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from .handlers.file_converter import file_converter
 from .handlers.anova_analysis import anova_analysis
+from .handlers.lineal_regresion import run_regression
 
 bp = Blueprint('main', __name__)
 
@@ -30,6 +31,21 @@ def anova():
         resultado = anova_analysis(data['data'], data['columns'])
         status_code = 200 if resultado.get("ok") else 400
         return jsonify(resultado), status_code
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@bp.route('/api/v1.0/regression', methods=['POST'])
+def lineal_regression():
+    payload = request.get_json()
+
+    if not payload or 'data' not in payload or 'columns' not in payload or 'dependent' not in payload:
+        return jsonify({"error": "Debe enviar 'data', 'columns' y 'dependent' en el cuerpo"}), 400
+
+    try:
+        result = run_regression(payload['data'], payload['columns'], payload['dependent'])
+        status = 200 if result.get("ok") else 400
+        return jsonify(result), status
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500

@@ -23,7 +23,7 @@ export const FileUpload = ({ setData }: FileUploadProps) => {
         }
       );
 
-      console.log(typeof response.data);
+      console.log(response.data);
 
       setData(response.data);
     } catch (error) {
