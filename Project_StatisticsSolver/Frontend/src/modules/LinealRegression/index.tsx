@@ -29,8 +29,11 @@ export const LinealRegresion = ({ data }: props) => {
       setResult(response);
       setView(true);
     } catch (error) {
-      console.error("Error al realizar el análisis ANOVA:", error);
-      alert("Ocurrió un error al realizar el análisis ANOVA.");
+      console.error(
+        "Error al realizar el análisis de regresión lineal:",
+        error
+      );
+      alert("Ocurrió un error al realizar el análisis de regresión lineal.");
     }
   };
 
@@ -113,18 +116,27 @@ export const LinealRegresion = ({ data }: props) => {
           </p>
 
           <h2>White (Heterocedasticidad)</h2>
-          <p>
-            <strong>Estadístico:</strong> {result.white_test.stat}
-          </p>
-          <p>
-            <strong>p-valor:</strong> {result.white_test.p_value}
-          </p>
-          <p>
-            <strong>F-stat:</strong> {result.white_test.f_stat}
-          </p>
-          <p>
-            <strong>F p-valor:</strong> {result.white_test.f_p_value}
-          </p>
+          {typeof result.white_test?.stat === "number" ? (
+            <>
+              <p>
+                <strong>Estadístico:</strong> {result.white_test.stat}
+              </p>
+              <p>
+                <strong>p-valor:</strong> {result.white_test.p_value}
+              </p>
+              <p>
+                <strong>F-stat:</strong> {result.white_test.f_stat}
+              </p>
+              <p>
+                <strong>F p-valor:</strong> {result.white_test.f_p_value}
+              </p>
+            </>
+          ) : (
+            <p>
+              <strong>Error:</strong>{" "}
+              {result.white_test?.error ?? "No disponible"}
+            </p>
+          )}
 
           <h2>VIF (Multicolinealidad)</h2>
           <table>

@@ -1,5 +1,4 @@
 from flask import Blueprint
-import json
 from openai import OpenAI
 import pandas as pd
 import numpy as np
@@ -16,9 +15,26 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 bp = Blueprint('bp', __name__)
 
-def run_regression(data: list, columns: list, dependent: str, alpha: float = 0.05) -> dict:
+def run_regression(data: list, columns: list, dependent: str, categorical: list = [], alpha: float = 0.05) -> dict:
     try:
         df = pd.DataFrame(data, columns=columns)
+
+        # 1. Reemplazar strings vacíos por NaN explícitos
+        df.replace(r'^\s*$', np.nan, regex=True, inplace=True)
+
+        # 2. Detectar columnas categóricas (antes de forzar a numérico)
+        # Validar que las columnas existen
+        categorical_cols = [col for col in categorical if col in df.columns]
+        if categorical_cols:
+            df = pd.get_dummies(df, columns=categorical_cols, drop_first=True)
+
+        # 3. Crear dummies SOLO para categóricas válidas
+        if categorical_cols:
+            df = pd.get_dummies(df, columns=categorical_cols, drop_first=True)
+
+        # 4. Convertir todo a numérico y eliminar nulos
+        df = df.apply(pd.to_numeric, errors='coerce')
+        df.dropna(inplace=True)
 
         if dependent not in df.columns:
             return {"ok": False, "error": f"La variable dependiente '{dependent}' no existe en las columnas."}
@@ -44,7 +60,7 @@ def run_regression(data: list, columns: list, dependent: str, alpha: float = 0.0
 
         # Tabla ANOVA
         try:
-            anova_tbl = sm.stats.anova_lm(model, typ=2)
+            anova_tbl = sm.stats.anova_lm(model)
             anova = {
                 idx: {
                     "df": float(row["df"]),
@@ -197,6 +213,10 @@ F p-valor: {white_result.get("f_p_value", "N/A")}
 
 Variable\tVIF  
 {vif_str}
+
+---
+Tabla de residuos
+{results_table}
 
 ---
 """

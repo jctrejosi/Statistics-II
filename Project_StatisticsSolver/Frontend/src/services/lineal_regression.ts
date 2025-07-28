@@ -13,15 +13,6 @@ export type RegressionResponse = {
   r2_adj: number;
   f_statistic: number;
   f_pvalue: number;
-  anova: {
-    [variable: string]: {
-      df: number;
-      sum_sq: number;
-      mean_sq: number;
-      F?: number;
-      "PR(>F)"?: number;
-    };
-  };
   coefs: {
     variable: string;
     coef: number;
@@ -50,6 +41,7 @@ export type RegressionResponse = {
     p_value: number;
     f_stat: number;
     f_p_value: number;
+    error?: string;
   };
   durbin_watson: number;
   vif: {
@@ -75,7 +67,7 @@ export const set_regression = async (data: DataSend) => {
   try {
     const res = await axios.post<RegressionResponse>(
       "http://localhost:5000/api/v1.0/regression",
-      { ...data, dependent: "salario" }
+      { ...data, dependent: "Y", categorical: ["X6"] }
     );
     return res.data;
   } catch (err) {

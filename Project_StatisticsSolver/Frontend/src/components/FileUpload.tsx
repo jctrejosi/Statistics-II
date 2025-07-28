@@ -23,8 +23,6 @@ export const FileUpload = ({ setData }: FileUploadProps) => {
         }
       );
 
-      console.log(response.data);
-
       setData(response.data);
     } catch (error) {
       console.error("Error procesando archivo:", error);
